@@ -175,7 +175,7 @@ class _AuthScreenState extends State<AuthScreen> {
               color: Theme.of(context).colorScheme.onBackground,
             ),
             Text(
-              'Money Manager',
+              'Wallet Sync',
               style: Theme.of(context)
                   .textTheme
                   .displayMedium!
