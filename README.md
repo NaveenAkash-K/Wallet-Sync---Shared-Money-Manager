@@ -24,14 +24,10 @@ That's it! You're ready to experience seamless money management.
 
 ## Screenshots
 
-![Screenshot 1](screenshots/screenshot1.png)
-*Caption for Screenshot 1*
+![Screenshot 1](screenshot/screenshot1.png)
+![Screenshot 2](screenshot/screenshot2.png)
+![Screenshot 3](screenshot/screenshot3.png)
 
-![Screenshot 2](screenshots/screenshot2.png)
-*Caption for Screenshot 2*
-
-![Screenshot 3](screenshots/screenshot3.png)
-*Caption for Screenshot 3*
 
 ## How to Contribute
 
