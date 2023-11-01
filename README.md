@@ -34,10 +34,6 @@ That's it! You're ready to experience seamless money management.
   </tbody>
 <table>
 
-![Screenshot 1](screenshot/screenshot1.png)
-![Screenshot 2](screenshot/screenshot2.png)
-![Screenshot 3](screenshot/screenshot3.png)
-
 
 ## How to Contribute
 
