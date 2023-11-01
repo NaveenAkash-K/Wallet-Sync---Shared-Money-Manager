@@ -50,6 +50,6 @@ We'd like to express our gratitude to the open-source community and the creators
 
 ## License
 
-Wallet Sync is <a href="https://github.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/blob/main/LICENSE">MIT Licensed</a> file for details.
+Wallet Sync is <a href="https://github.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/blob/main/LICENSE">MIT Licensed</a>.
 
 Happy Syncing!
