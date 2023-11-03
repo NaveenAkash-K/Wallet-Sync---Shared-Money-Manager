@@ -3,22 +3,22 @@ import 'package:intl/intl.dart';
 import 'package:walletSync/models/expense_model.dart';
 import 'package:walletSync/models/income_model.dart';
 
-class Chart extends StatefulWidget {
-  const Chart({
+class Overview extends StatefulWidget {
+  const Overview({
     super.key,
     required this.registeredExpense,
     required this.registeredIncome,
   });
   @override
   State<StatefulWidget> createState() {
-    return _ChartState();
+    return _OverviewState();
   }
 
   final List<Expense> registeredExpense;
   final List<Income> registeredIncome;
 }
 
-class _ChartState extends State<Chart> {
+class _OverviewState extends State<Overview> {
   double get availableMoney {
     var expense = 0.0;
     var income = 0.0;

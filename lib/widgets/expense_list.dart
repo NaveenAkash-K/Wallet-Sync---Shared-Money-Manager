@@ -42,23 +42,22 @@ class ExpenseList extends StatelessWidget {
       itemCount: transactions.length,
       itemBuilder: (context, index) {
         return Dismissible(
-          movementDuration: Duration(milliseconds: 220),
+          movementDuration: const Duration(milliseconds: 220),
           secondaryBackground: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            color: Theme.of(context).colorScheme.errorContainer,
+            color: Theme.of(context).colorScheme.error,
             child: Row(
               children: [
                 const Spacer(),
                 Text(
                   'Delete Item',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
+                        color: Theme.of(context).colorScheme.onError,
                       ),
                 ),
                 const SizedBox(width: 10),
                 Icon(
                   Icons.delete,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
+                  color: Theme.of(context).colorScheme.onError,
                 ),
                 const SizedBox(width: 10),
               ],
@@ -66,20 +65,19 @@ class ExpenseList extends StatelessWidget {
           ),
           key: ValueKey(transactions[index].id),
           background: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            color: Theme.of(context).colorScheme.errorContainer,
+            color: Theme.of(context).colorScheme.error,
             child: Row(
               children: [
                 const SizedBox(width: 10),
                 Icon(
                   Icons.delete,
-                  color: Theme.of(context).colorScheme.onErrorContainer,
+                  color: Theme.of(context).colorScheme.onError,
                 ),
                 const SizedBox(width: 10),
                 Text(
                   'Delete Item',
                   style: Theme.of(context).textTheme.bodyMedium!.copyWith(
-                        color: Theme.of(context).colorScheme.onErrorContainer,
+                        color: Theme.of(context).colorScheme.onError,
                       ),
                 ),
                 const Spacer(),
@@ -142,7 +140,7 @@ class ExpenseList extends StatelessWidget {
                 transactions: transactions,
                 index: index,
               ),
-              if (index == transactions.length - 1) const SizedBox(height: 80),
+              if (index == transactions.length - 1) const SizedBox(height: 50),
             ],
           ),
         );

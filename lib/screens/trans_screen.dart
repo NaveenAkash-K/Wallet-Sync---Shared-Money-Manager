@@ -6,18 +6,24 @@ import 'package:walletSync/models/expense_model.dart';
 import 'package:walletSync/models/income_model.dart';
 import 'package:walletSync/screens/new_expense.dart';
 import 'package:walletSync/screens/new_income.dart';
-import 'package:walletSync/widgets/chart.dart';
+import 'package:walletSync/widgets/overview.dart';
 import 'package:walletSync/widgets/expense_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-List<Expense> registeredExpense = [];
-List<Income> registeredIncome = [];
-List<dynamic> transactions = [];
+import 'package:walletSync/widgets/side_drawer.dart';
 
 class TransScreen extends StatefulWidget {
-  const TransScreen({super.key});
+  TransScreen({
+    super.key,
+    this.isShared = false,
+    this.sharedExpenseId,
+  });
+  final bool isShared;
+  final String? sharedExpenseId;
+  List<Expense> registeredExpense = [];
+  List<Income> registeredIncome = [];
+  List<dynamic> transactions = [];
   @override
   State<StatefulWidget> createState() => _TransScreen();
 }
@@ -35,8 +41,8 @@ class _TransScreen extends State<TransScreen> {
         .doc(item.id)
         .delete();
     setState(() {
-      transactions.remove(item);
-      registeredExpense.remove(item);
+      widget.transactions.remove(item);
+      widget.registeredExpense.remove(item);
     });
   }
 
@@ -48,13 +54,13 @@ class _TransScreen extends State<TransScreen> {
         .doc(item.id)
         .delete();
     setState(() {
-      transactions.remove(item);
-      registeredIncome.remove(item);
+      widget.transactions.remove(item);
+      widget.registeredIncome.remove(item);
     });
   }
 
   void orderTransactions() {
-    transactions.sort((a, b) {
+    widget.transactions.sort((a, b) {
       final dateA = DateFormat('dd/MM/y').parse(a.date.replaceAll(' ', ''));
       final dateB = DateFormat('dd/MM/y').parse(b.date.replaceAll(' ', ''));
 
@@ -76,6 +82,10 @@ class _TransScreen extends State<TransScreen> {
   dynamic incomeData;
 
   void loadItem() async {
+    setState(() {
+      isFetching = true;
+    });
+
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
     final incomeSnapShot =
@@ -83,6 +93,10 @@ class _TransScreen extends State<TransScreen> {
 
     final expenseSnapShot =
         await firestore.collection("uid").doc(uid).collection("expense").get();
+
+    if (!mounted) {
+      return; // Check if the widget is still mounted before proceeding
+    }
 
     setState(() {
       isFetching = false;
@@ -103,25 +117,9 @@ class _TransScreen extends State<TransScreen> {
 
     if (expenseData != null) {
       for (final item in expenseData.entries) {
-        if (item.value['category'] == 'entertainment') {
-          eCategory = ExpenseCategory.entertainment;
-        } else if (item.value['category'] == 'food') {
-          eCategory = ExpenseCategory.food;
-        } else if (item.value['category'] == 'transport') {
-          eCategory = ExpenseCategory.transport;
-        } else if (item.value['category'] == 'health') {
-          eCategory = ExpenseCategory.health;
-        } else if (item.value['category'] == 'shopping') {
-          eCategory = ExpenseCategory.shopping;
-        } else if (item.value['category'] == 'others') {
-          eCategory = ExpenseCategory.others;
-        } else if (item.value['category'] == 'upi') {
-          eCategory = ExpenseCategory.upi;
-        } else if (item.value['category'] == 'cash') {
-          eCategory = ExpenseCategory.cash;
-        } else {
-          eCategory = ExpenseCategory.education;
-        }
+        eCategory = ExpenseCategory.values.firstWhere((element) {
+          return element.toString().split('.').last == item.value['category'];
+        });
 
         expenseLoadedItem.add(
           Expense(
@@ -138,15 +136,9 @@ class _TransScreen extends State<TransScreen> {
 
     if (incomeData != null) {
       for (final item in incomeData.entries) {
-        if (item.value['category'] == 'cash') {
-          iCategory = IncomeCategory.cash;
-        } else if (item.value['category'] == 'salary') {
-          iCategory = IncomeCategory.salary;
-        } else if (item.value['category'] == 'upi') {
-          iCategory = IncomeCategory.upi;
-        } else {
-          iCategory = IncomeCategory.others;
-        }
+        iCategory = IncomeCategory.values.firstWhere((element) {
+          return element.toString().split('.').last == item.value['category'];
+        });
 
         incomeLoadedItem.add(
           Income(
@@ -161,10 +153,17 @@ class _TransScreen extends State<TransScreen> {
       }
     }
 
+    if (!mounted) {
+      return; // Check if the widget is still mounted before calling setState
+    }
+
     setState(() {
-      registeredExpense = expenseLoadedItem;
-      registeredIncome = incomeLoadedItem;
-      transactions = [...registeredExpense, ...registeredIncome];
+      widget.registeredExpense = expenseLoadedItem;
+      widget.registeredIncome = incomeLoadedItem;
+      widget.transactions = [
+        ...widget.registeredExpense,
+        ...widget.registeredIncome
+      ];
       orderTransactions();
     });
   }
@@ -179,17 +178,9 @@ class _TransScreen extends State<TransScreen> {
   Widget build(BuildContext context) {
     timeDilation = 1.2;
     return Scaffold(
+      drawer: widget.isShared ? null : SideDrawer(),
       appBar: AppBar(
-        title: const Text('Money manager'),
-        actions: [
-          TextButton.icon(
-            label: const Text('Logout'),
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+        title: const Text('Personal Expense'),
       ),
       body: isFetching
           ? const Center(
@@ -198,19 +189,16 @@ class _TransScreen extends State<TransScreen> {
           : Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Chart(
-                  registeredExpense: registeredExpense,
-                  registeredIncome: registeredIncome,
+                Overview(
+                  registeredExpense: widget.registeredExpense,
+                  registeredIncome: widget.registeredIncome,
                 ),
                 const Divider(),
-                const SizedBox(
-                  height: 10,
-                ),
                 Expanded(
                   child: ExpenseList(
-                    transactions: transactions,
-                    registeredExpense: registeredExpense,
-                    registeredIncome: registeredIncome,
+                    transactions: widget.transactions,
+                    registeredExpense: widget.registeredExpense,
+                    registeredIncome: widget.registeredIncome,
                     removeExpense: removeExpense,
                     removeIncome: removeIncome,
                   ),
@@ -241,8 +229,8 @@ class _TransScreen extends State<TransScreen> {
               }
 
               setState(() {
-                registeredExpense.add(newItem);
-                transactions.add(newItem);
+                widget.registeredExpense.add(newItem);
+                widget.transactions.add(newItem);
                 orderTransactions();
               });
             },
@@ -265,8 +253,8 @@ class _TransScreen extends State<TransScreen> {
                 return;
               }
               setState(() {
-                registeredIncome.add(newItem);
-                transactions.add(newItem);
+                widget.registeredIncome.add(newItem);
+                widget.transactions.add(newItem);
                 orderTransactions();
               });
             },
