@@ -14,12 +14,22 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
-    const MyApp(),
+    MyApp(),
   );
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+
+  final kDarkColorScheme = ColorScheme.fromSeed(
+    seedColor: const Color.fromARGB(255, 255, 33, 33),
+    brightness: Brightness.dark,
+  );
+
+  final kLightColorScheme = ColorScheme.fromSeed(
+    seedColor: const Color.fromARGB(255, 255, 33, 33),
+    brightness: Brightness.light,
+  );
 
   @override
   Widget build(BuildContext context) => MaterialApp(
@@ -32,13 +42,14 @@ class MyApp extends StatelessWidget {
             return const AuthScreen();
           },
         ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: kDarkColorScheme,
+          textTheme: GoogleFonts.latoTextTheme(),
+        ),
         theme: ThemeData(
           useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            brightness: Brightness.dark,
-            seedColor: const Color.fromARGB(225, 47, 37, 37),
-          ),
-          textTheme: GoogleFonts.latoTextTheme(),
+          colorScheme: kLightColorScheme,
         ),
       );
 }

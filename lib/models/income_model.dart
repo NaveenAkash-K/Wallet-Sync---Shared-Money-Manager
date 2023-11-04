@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 
 enum IncomeCategory { salary, others, cash, upi }
 
 Map<String, IconData> incomeCategoryIcon = {
-  'salary': Icons.credit_card,
-  'cash': Icons.payments_outlined,
-  'others': Icons.currency_rupee,
-  'upi': Icons.paypal,
+  'salary': MaterialCommunityIcons.currency_inr,
+  'cash': MaterialCommunityIcons.cash,
+  'others': MaterialCommunityIcons.bank,
+  'upi': MaterialCommunityIcons.bank_transfer,
+  // 'salary': Icons.credit_card,
+  // 'cash': Icons.payments_outlined,
+  // 'others': Icons.currency_rupee,
+  // 'upi': Icons.paypal,
 };
 
 class Income {

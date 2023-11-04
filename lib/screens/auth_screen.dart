@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 
 class AuthScreen extends StatefulWidget {
   const AuthScreen({super.key});
@@ -15,6 +16,8 @@ class _AuthScreenState extends State<AuthScreen> {
   late String _enteredEmail;
   late String _enteredPassword;
   String? _enteredUsername;
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
 
   final firebaseAuth = FirebaseAuth.instance;
   final fireStore = FirebaseFirestore.instance;
@@ -47,6 +50,9 @@ class _AuthScreenState extends State<AuthScreen> {
           isAuthenticating = false;
         });
       } on FirebaseAuthException catch (error) {
+        if (!mounted) {
+          return;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
@@ -69,96 +75,122 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Form(
-      key: _formKey,
-      child: Column(
-        children: [
-          Text(
-            isLogin ? 'Login' : 'Signup',
-            style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
-                ),
-          ),
-          TextFormField(
-            decoration: const InputDecoration(labelText: 'Email'),
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryContainer),
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null ||
-                  !value.contains('@') ||
-                  value.trim().isEmpty) {
-                return 'Enter a valid email';
-              }
-              return null;
-            },
-            onSaved: (newValue) {
-              _enteredEmail = newValue!;
-            },
-          ),
-          if (!isLogin)
+    Widget content = Padding(
+      padding: const EdgeInsets.fromLTRB(50, 25, 50, 0),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          children: [
+            Text(
+              isLogin ? 'Login' : 'Signup',
+              style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+            ),
             TextFormField(
-              decoration: const InputDecoration(labelText: 'Username'),
+              decoration: const InputDecoration(labelText: 'Email'),
               style: TextStyle(
                   color: Theme.of(context).colorScheme.onPrimaryContainer),
               keyboardType: TextInputType.emailAddress,
               validator: (value) {
-                if (value == null || value.trim().length < 3) {
-                  return 'Username must be greater than 2 characters';
+                if (value == null ||
+                    !value.contains('@') ||
+                    value.trim().isEmpty) {
+                  return 'Enter a valid email';
                 }
                 return null;
               },
               onSaved: (newValue) {
-                _enteredUsername = newValue!;
+                _enteredEmail = newValue!;
               },
             ),
-          TextFormField(
-            decoration: const InputDecoration(
-              labelText: 'Password',
+            if (!isLogin)
+              TextFormField(
+                decoration: const InputDecoration(labelText: 'Username'),
+                controller: _usernameController,
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+                validator: (value) {
+                  if (value == null || value.trim().length < 3) {
+                    return 'Username must be greater than 2 characters';
+                  }
+                  return null;
+                },
+                onSaved: (newValue) {
+                  _enteredUsername = newValue!;
+                },
+              ),
+            TextFormField(
+              decoration: const InputDecoration(
+                labelText: 'Password',
+              ),
+              controller: _passwordController,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onPrimaryContainer),
+              obscureText: true,
+              validator: (value) {
+                if (value == null || value.trim().length < 6) {
+                  return 'Password must be atleast 6 characters';
+                }
+                return null;
+              },
+              onSaved: (newValue) {
+                _enteredPassword = newValue!;
+              },
             ),
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.onPrimaryContainer),
-            obscureText: true,
-            validator: (value) {
-              if (value == null || value.trim().length < 6) {
-                return 'Password must be atleast 6 characters';
-              }
-              return null;
-            },
-            onSaved: (newValue) {
-              _enteredPassword = newValue!;
-            },
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: _submit,
-            style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.primary,
-                foregroundColor: Theme.of(context).colorScheme.onPrimary),
-            child: isAuthenticating
-                ? SizedBox(
-                    height: 25,
-                    width: 25,
-                    child: CircularProgressIndicator(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
-                  )
-                : Text(isLogin ? 'Login' : 'Signup'),
-          ),
-          const SizedBox(height: 5),
-          TextButton(
-            onPressed: () {
-              setState(() {
-                isLogin = !isLogin;
-              });
-              if (isLogin) {
-                _enteredUsername = null;
-              }
-            },
-            child:
-                Text(isLogin ? 'Create an account' : 'Already a user? Login!'),
-          ),
-        ],
+            if (!isLogin)
+              TextFormField(
+                decoration: const InputDecoration(
+                  labelText: 'Confirm Password',
+                ),
+                style: TextStyle(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null ||
+                      value.trim().length < 6 ||
+                      _passwordController.text != value) {
+                    return 'Passwords does not match';
+                  }
+                  return null;
+                },
+                onSaved: (newValue) {
+                  _enteredPassword = newValue!;
+                },
+              ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _submit,
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary),
+              child: isAuthenticating
+                  ? SizedBox(
+                      height: 25,
+                      width: 25,
+                      child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.onPrimary,
+                      ),
+                    )
+                  : Text(isLogin ? 'Login' : 'Signup'),
+            ),
+            const SizedBox(height: 5),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _usernameController.clear();
+                  _passwordController.clear();
+                  isLogin = !isLogin;
+                });
+                if (isLogin) {
+                  _enteredUsername = null;
+                }
+              },
+              child: Text(
+                  isLogin ? 'Create an account' : 'Already a user? Login!'),
+            ),
+          ],
+        ),
       ),
     );
 
@@ -170,7 +202,7 @@ class _AuthScreenState extends State<AuthScreen> {
           children: [
             const SizedBox(height: 60),
             Icon(
-              Icons.analytics_outlined,
+              MaterialCommunityIcons.wallet,
               size: 200,
               color: Theme.of(context).colorScheme.onBackground,
             ),
@@ -182,17 +214,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   .copyWith(color: Theme.of(context).colorScheme.onBackground),
             ),
             const SizedBox(height: 30),
-            Container(
-              padding: const EdgeInsets.all(20),
-              width: double.infinity,
-              // height: 250,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Theme.of(context).colorScheme.primaryContainer,
-              ),
-              child: content,
-            ),
+            content,
           ],
         ),
       ),

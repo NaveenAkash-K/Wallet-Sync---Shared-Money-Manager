@@ -4,26 +4,30 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:walletSync/models/expense_model.dart';
 import 'package:walletSync/models/income_model.dart';
-import 'package:walletSync/screens/new_expense.dart';
-import 'package:walletSync/screens/new_income.dart';
+import 'package:walletSync/models/shared_expense_model.dart';
+import 'package:walletSync/screens/new_expense_screen.dart';
+import 'package:walletSync/screens/new_income_screen.dart';
 import 'package:walletSync/widgets/overview.dart';
 import 'package:walletSync/widgets/expense_list.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:walletSync/widgets/side_drawer.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 
 class TransScreen extends StatefulWidget {
   TransScreen({
     super.key,
     this.isShared = false,
-    this.sharedExpenseId,
+    this.sharedExpense,
   });
+
   final bool isShared;
-  final String? sharedExpenseId;
+  final SharedExpense? sharedExpense;
   List<Expense> registeredExpense = [];
   List<Income> registeredIncome = [];
   List<dynamic> transactions = [];
+
   @override
   State<StatefulWidget> createState() => _TransScreen();
 }
@@ -33,26 +37,53 @@ class _TransScreen extends State<TransScreen> {
   var isFetching = true;
   final uid = FirebaseAuth.instance.currentUser!.uid;
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void removeExpense(item) {
-    firestore
-        .collection("uid")
-        .doc(uid)
-        .collection("expense")
-        .doc(item.id)
-        .delete();
-    setState(() {
-      widget.transactions.remove(item);
-      widget.registeredExpense.remove(item);
-    });
+    if (widget.isShared) {
+      firestore
+          .collection("sharedExpenses")
+          .doc(widget.sharedExpense!.id)
+          .collection("expense")
+          .doc(item.id)
+          .delete();
+      setState(() {
+        widget.transactions.remove(item);
+        widget.registeredExpense.remove(item);
+      });
+    } else {
+      firestore
+          .collection("uid")
+          .doc(uid)
+          .collection("expense")
+          .doc(item.id)
+          .delete();
+      setState(() {
+        widget.transactions.remove(item);
+        widget.registeredExpense.remove(item);
+      });
+    }
   }
 
   void removeIncome(item) {
-    firestore
-        .collection("uid")
-        .doc(uid)
-        .collection("income")
-        .doc(item.id)
-        .delete();
+    if (widget.isShared) {
+      firestore
+          .collection("sharedExpenses")
+          .doc(widget.sharedExpense!.id)
+          .collection("income")
+          .doc(item.id)
+          .delete();
+    } else {
+      firestore
+          .collection("uid")
+          .doc(uid)
+          .collection("income")
+          .doc(item.id)
+          .delete();
+    }
     setState(() {
       widget.transactions.remove(item);
       widget.registeredIncome.remove(item);
@@ -80,6 +111,8 @@ class _TransScreen extends State<TransScreen> {
 
   dynamic expenseData;
   dynamic incomeData;
+  var incomeSnapShot;
+  var expenseSnapShot;
 
   void loadItem() async {
     setState(() {
@@ -88,11 +121,28 @@ class _TransScreen extends State<TransScreen> {
 
     final uid = FirebaseAuth.instance.currentUser!.uid;
 
-    final incomeSnapShot =
-        await firestore.collection("uid").doc(uid).collection("income").get();
+    if (widget.isShared) {
+      incomeSnapShot = await firestore
+          .collection("sharedExpenses")
+          .doc(widget.sharedExpense!.id)
+          .collection("income")
+          .get();
 
-    final expenseSnapShot =
-        await firestore.collection("uid").doc(uid).collection("expense").get();
+      expenseSnapShot = await firestore
+          .collection("sharedExpenses")
+          .doc(widget.sharedExpense!.id)
+          .collection("expense")
+          .get();
+    } else {
+      incomeSnapShot =
+          await firestore.collection("uid").doc(uid).collection("income").get();
+
+      expenseSnapShot = await firestore
+          .collection("uid")
+          .doc(uid)
+          .collection("expense")
+          .get();
+    }
 
     if (!mounted) {
       return; // Check if the widget is still mounted before proceeding
@@ -180,7 +230,8 @@ class _TransScreen extends State<TransScreen> {
     return Scaffold(
       drawer: widget.isShared ? null : SideDrawer(),
       appBar: AppBar(
-        title: const Text('Personal Expense'),
+        title: Text(
+            widget.isShared ? widget.sharedExpense!.title : 'Personal Expense'),
       ),
       body: isFetching
           ? const Center(
@@ -209,18 +260,23 @@ class _TransScreen extends State<TransScreen> {
       floatingActionButton: ExpandableFab(
         overlayStyle: ExpandableFabOverlayStyle(blur: 6),
         distance: 90,
-        child: const Icon(Icons.add),
+        child: const Icon(MaterialCommunityIcons.plus),
         children: [
           FloatingActionButton.extended(
             heroTag: 'Expense Screen',
             label: const Text('Expense'),
-            icon: const Icon(Icons.attach_money),
+            icon: const Icon(MaterialCommunityIcons.bank_transfer_out),
             onPressed: () async {
               HapticFeedback.lightImpact();
               final newItem = await Navigator.push<Expense>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const NewExpense(),
+                  builder: (context) => widget.isShared
+                      ? NewExpenseScreen(
+                          isShared: true,
+                          sharedExpense: widget.sharedExpense,
+                        )
+                      : const NewExpenseScreen(),
                 ),
               );
 
@@ -238,14 +294,19 @@ class _TransScreen extends State<TransScreen> {
           FloatingActionButton.extended(
             heroTag: 'Income Screen',
             label: const Text('Income'),
-            icon: const Icon(Icons.attach_money),
+            icon: const Icon(MaterialCommunityIcons.bank_transfer_in),
             onPressed: () async {
               HapticFeedback.lightImpact();
 
               final newItem = await Navigator.push<Income>(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const NewIncomeScreen(),
+                  builder: (context) => widget.isShared
+                      ? NewIncomeScreen(
+                          isShared: true,
+                          sharedExpense: widget.sharedExpense,
+                        )
+                      : const NewIncomeScreen(),
                 ),
               );
 

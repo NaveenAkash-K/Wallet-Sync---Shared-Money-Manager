@@ -25,13 +25,13 @@ class ExpenseItem extends StatelessWidget {
             margin: const EdgeInsets.only(right: 15),
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.onSecondary),
+                color: Theme.of(context).colorScheme.secondaryContainer),
             // color: Colors.transparent,
             height: 40,
             width: 40,
             child: Icon(
               transactions[index].icon,
-              color: Theme.of(context).colorScheme.secondary,
+              color: Theme.of(context).colorScheme.onSecondaryContainer,
             ),
           ),
           Column(
@@ -50,13 +50,13 @@ class ExpenseItem extends StatelessWidget {
                   Text(
                     transactions[index].time,
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                   const SizedBox(width: 7),
                   Text(
                     transactions[index].date,
                     style: Theme.of(context).textTheme.bodySmall!.copyWith(
-                        color: Theme.of(context).colorScheme.onBackground),
+                        color: Theme.of(context).colorScheme.secondary),
                   ),
                 ],
               ),

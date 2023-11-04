@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:walletSync/screens/analytics_screen.dart';
 import 'package:walletSync/screens/shared_expense_screen.dart';
 import 'package:walletSync/screens/trans_screen.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -35,10 +35,10 @@ class _MainScreenState extends State<MainScreen> {
         currentIndex: _selectedPageIndex,
         items: const [
           BottomNavigationBarItem(
-              icon: Icon(Icons.currency_exchange_rounded),
+              icon: Icon(MaterialCommunityIcons.swap_horizontal_bold),
               label: 'Personal Expense'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.person_add_alt_1),
+            icon: Icon(MaterialCommunityIcons.account_group),
             label: 'Shared Expenses',
           ),
         ],

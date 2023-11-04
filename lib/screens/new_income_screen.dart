@@ -1,54 +1,50 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:walletSync/models/expense_model.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:walletSync/models/income_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
+import 'package:walletSync/models/shared_expense_model.dart';
 
-class NewExpense extends StatefulWidget {
-  const NewExpense({super.key});
+class NewIncomeScreen extends StatefulWidget {
+  const NewIncomeScreen({
+    super.key,
+    this.sharedExpense,
+    this.isShared = false,
+  });
+
+  final bool isShared;
+  final SharedExpense? sharedExpense;
+
   @override
-  State<StatefulWidget> createState() => _NewExpense();
+  State<StatefulWidget> createState() => _NewIncomeScreenState();
 }
 
-class _NewExpense extends State<NewExpense> {
+class _NewIncomeScreenState extends State<NewIncomeScreen> {
   final _formKey = GlobalKey<FormState>();
-  final firestore = FirebaseFirestore.instance;
-  final uuid = const Uuid();
 
   String? enteredTitle;
+  final uuid = const Uuid();
   double? enteredAmount;
-  ExpenseCategory? enteredCategory;
+
+  IncomeCategory? enteredCategory;
+
   DateTime? _selectedDate = DateTime.now();
   TimeOfDay? _selectedTime = TimeOfDay.now();
-  late String uid;
+  final firestore = FirebaseFirestore.instance;
 
   void _showDatePicker() async {
-    HapticFeedback.lightImpact();
     final now = DateTime.now();
     final firstDate = DateTime(now.year - 1, now.month, now.day);
     final pickedDate = await showDatePicker(
-      context: context,
-      initialDate: now,
-      firstDate: firstDate,
-      lastDate: now,
-    );
+        context: context,
+        initialDate: now,
+        firstDate: firstDate,
+        lastDate: now);
 
     setState(() {
       _selectedDate = pickedDate;
-    });
-  }
-
-  void _showTimePicker() async {
-    HapticFeedback.lightImpact();
-    final pickedTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-
-    setState(() {
-      _selectedTime = pickedTime;
     });
   }
 
@@ -59,6 +55,16 @@ class _NewExpense extends State<NewExpense> {
       .add_y()
       .format(_selectedDate!);
 
+  void _showTimePicker() async {
+    HapticFeedback.lightImpact();
+    final now = TimeOfDay.now();
+    final pickedTime = await showTimePicker(context: context, initialTime: now);
+
+    setState(() {
+      _selectedTime = pickedTime;
+    });
+  }
+
   String get formattedTime => _selectedTime!.format(context);
 
   void submit() async {
@@ -66,17 +72,33 @@ class _NewExpense extends State<NewExpense> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
-      uid = FirebaseAuth.instance.currentUser!.uid;
-
+      final uid = FirebaseAuth.instance.currentUser!.uid;
       final id = uuid.v4();
-      firestore.collection("uid").doc(uid).collection("expense").doc(id).set({
-        'id': id,
-        'title': enteredTitle,
-        'amount': enteredAmount,
-        'category': enteredCategory!.name,
-        'date': formattedDate,
-        'time': formattedTime
-      });
+
+      if (widget.isShared) {
+        firestore
+            .collection("sharedExpenses")
+            .doc(widget.sharedExpense!.id)
+            .collection("income")
+            .doc(id)
+            .set({
+          'id': id,
+          'title': enteredTitle,
+          'amount': enteredAmount,
+          'category': enteredCategory!.name,
+          'date': formattedDate,
+          'time': formattedTime
+        });
+      } else {
+        firestore.collection("uid").doc(uid).collection("income").doc(id).set({
+          'id': id,
+          'title': enteredTitle,
+          'amount': enteredAmount,
+          'category': enteredCategory!.name,
+          'date': formattedDate,
+          'time': formattedTime
+        });
+      }
 
       if (!context.mounted) {
         return;
@@ -84,7 +106,7 @@ class _NewExpense extends State<NewExpense> {
 
       Navigator.pop(
         context,
-        Expense(
+        Income(
           id: id,
           title: enteredTitle!,
           amount: enteredAmount!,
@@ -99,10 +121,10 @@ class _NewExpense extends State<NewExpense> {
   @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: 'Expense Screen',
+      tag: 'Income Screen',
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('New Expense'),
+          title: const Text('New Income'),
         ),
         body: Form(
           key: _formKey,
@@ -112,7 +134,7 @@ class _NewExpense extends State<NewExpense> {
               children: [
                 TextFormField(
                   decoration: const InputDecoration(
-                    labelText: 'Expense Title',
+                    labelText: 'Income Title',
                   ),
                   textCapitalization: TextCapitalization.sentences,
                   validator: (value) {
@@ -143,7 +165,7 @@ class _NewExpense extends State<NewExpense> {
                         validator: (value) {
                           if (value == null ||
                               value.trim().isEmpty ||
-                              int.tryParse(value) == null) {
+                              double.tryParse(value) == null) {
                             return 'Please enter valid amount';
                           }
                           return null;
@@ -167,15 +189,15 @@ class _NewExpense extends State<NewExpense> {
                         onSaved: (newValue) {
                           enteredCategory = newValue;
                         },
-                        value: ExpenseCategory.food,
+                        value: IncomeCategory.cash,
                         items: [
-                          for (final category in ExpenseCategory.values)
+                          for (final category in IncomeCategory.values)
                             DropdownMenuItem(
                               value: category,
                               child: Row(
                                 children: [
                                   Icon(
-                                    expenseCategoryIcon[category.name],
+                                    incomeCategoryIcon[category.name],
                                   ),
                                   const SizedBox(width: 15),
                                   Text(
@@ -218,7 +240,6 @@ class _NewExpense extends State<NewExpense> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
                 Row(
                   children: [
                     const Spacer(),

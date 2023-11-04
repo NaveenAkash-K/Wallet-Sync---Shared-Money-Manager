@@ -19,6 +19,17 @@ class _NewSharedExpenseScreenState extends State {
   List<String> membersEmail = [];
   final firestore = FirebaseFirestore.instance;
   final firebaseAuth = FirebaseAuth.instance;
+  String? username;
+
+  void getUsername() async {
+    final uid = firebaseAuth.currentUser!.uid;
+    final snapshot = await firestore.collection('users').doc(uid).get();
+    username = snapshot
+        .data()!
+        .entries
+        .firstWhere((element) => element.key == 'username')
+        .value;
+  }
 
   void addMember() {
     if (_newSharedExpenseFormKey.currentState!.validate()) {
@@ -27,9 +38,37 @@ class _NewSharedExpenseScreenState extends State {
   }
 
   @override
+  void initState() {
+    getUsername();
+    super.initState();
+  }
+
+  void createSharedExpense() {
+    final uid = firebaseAuth.currentUser!.uid;
+    final id = uuid.v4();
+    firestore.collection("sharedExpenses").doc(id).set({
+      'title': enteredTitle,
+      'membersEmail': membersEmail,
+    });
+    firestore.collection('users').doc(uid).update({
+      'sharedExpense': FieldValue.arrayUnion([id])
+    });
+    firestore.collection('invitations').doc().set({
+      'senderUid': uid,
+      'recipientEmail': membersEmail,
+      'sharedExpenseId': id,
+      'senderUsername': username,
+      'sharedExpenseTitle': enteredTitle,
+    });
+    Navigator.pop(
+      context,
+      SharedExpense(id: id, title: enteredTitle!, membersEmail: membersEmail),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     // Variables
-    final uid = firebaseAuth.currentUser!.uid;
 
     return Scaffold(
       appBar: AppBar(
@@ -141,36 +180,12 @@ class _NewSharedExpenseScreenState extends State {
                 ),
                 const Spacer(),
                 ElevatedButton(
-                  onPressed: membersEmail.isEmpty
-                      ? null
-                      : () {
-                          final id = uuid.v4();
-                          firestore.collection("sharedExpenses").doc(id).set({
-                            'title': enteredTitle,
-                            'membersEmail': membersEmail,
-                          });
-                          firestore.collection('users').doc(uid).update({
-                            'sharedExpense': FieldValue.arrayUnion([id])
-                          });
-                          firestore.collection('invitations').doc().set({
-                            'sender': uid,
-                            'recipientEmail': membersEmail,
-                            'sharedExpenseId': id,
-                            'status': 'pending',
-                          });
-                          Navigator.pop(
-                            context,
-                            SharedExpense(
-                                id: id,
-                                title: enteredTitle!,
-                                membersEmail: membersEmail),
-                          );
-                        },
-                  child: const Text("Invite"),
+                  onPressed: membersEmail.isEmpty ? null : createSharedExpense,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                     foregroundColor: Theme.of(context).colorScheme.onPrimary,
                   ),
+                  child: const Text("Invite"),
                 )
               ],
             ),

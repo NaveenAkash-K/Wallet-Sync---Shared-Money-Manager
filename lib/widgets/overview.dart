@@ -106,7 +106,11 @@ class _OverviewState extends State<Overview> {
                     ),
                     Text(
                       '₹ $monthExpense',
-                      style: const TextStyle(color: Colors.red, fontSize: 20),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -117,7 +121,11 @@ class _OverviewState extends State<Overview> {
                     ),
                     Text(
                       '₹ $dayExpense',
-                      style: const TextStyle(color: Colors.red, fontSize: 20),
+                      style: const TextStyle(
+                        color: Colors.red,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -127,8 +135,9 @@ class _OverviewState extends State<Overview> {
                     Text(
                       ' Total Income ',
                       style: TextStyle(
-                          color: Theme.of(context).colorScheme.onBackground,
-                          fontSize: 20),
+                        color: Theme.of(context).colorScheme.onBackground,
+                        fontSize: 20,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -139,7 +148,11 @@ class _OverviewState extends State<Overview> {
                     ),
                     Text(
                       '₹ $monthIncome',
-                      style: const TextStyle(color: Colors.green, fontSize: 20),
+                      style: const TextStyle(
+                        color: Colors.green,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 5),
                     Text(
@@ -150,7 +163,11 @@ class _OverviewState extends State<Overview> {
                     ),
                     Text(
                       ' ₹ $dayIncome',
-                      style: const TextStyle(color: Colors.green, fontSize: 20),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                        fontSize: 20,
+                      ),
                     ),
                   ],
                 ),
@@ -167,8 +184,10 @@ class _OverviewState extends State<Overview> {
           Text(
             ' ₹ $availableMoney',
             style: TextStyle(
-                color: availableMoney > 0 ? Colors.green : Colors.red,
-                fontSize: 20),
+              color: availableMoney > 0 ? Colors.green : Colors.red,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ],
       ),

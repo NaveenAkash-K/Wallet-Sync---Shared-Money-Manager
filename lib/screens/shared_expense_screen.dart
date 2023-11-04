@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +5,7 @@ import 'package:walletSync/models/shared_expense_model.dart';
 import 'package:walletSync/screens/new_shared_expense_screen.dart';
 import 'package:walletSync/screens/trans_screen.dart';
 import 'package:walletSync/widgets/side_drawer.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 import 'package:uuid/uuid.dart';
 
 class SharedExpenseScreen extends StatefulWidget {
@@ -27,6 +26,11 @@ class _SharedExpenseScreenState extends State<SharedExpenseScreen> {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   void loadSharedExpense() async {
     final uid = firebaseAuth.currentUser!.uid;
     setState(() {
@@ -44,22 +48,16 @@ class _SharedExpenseScreenState extends State<SharedExpenseScreen> {
             final sharedExpenseSnapshot =
                 await firestore.collection('sharedExpenses').doc(id).get();
 
-            final title = sharedExpenseSnapshot
-                .data()!
-                .entries
-                .firstWhere((element) => element.key == 'title')
-                .value;
+            if (sharedExpenseSnapshot.exists) {
+              final sharedExpenseMap = sharedExpenseSnapshot.data()!;
+              final title = sharedExpenseMap['title'];
+              final emailList = sharedExpenseMap['membersEmail'];
 
-            final emailList = sharedExpenseSnapshot
-                .data()!
-                .entries
-                .firstWhere((element) => element.key == 'membersEmail')
-                .value;
-
-            setState(() {
-              sharedExpenses.add(
-                  SharedExpense(id: id, title: title, membersEmail: emailList));
-            });
+              setState(() {
+                sharedExpenses.add(SharedExpense(
+                    id: id, title: title, membersEmail: emailList));
+              });
+            }
           }
         }
       }
@@ -101,7 +99,7 @@ class _SharedExpenseScreenState extends State<SharedExpenseScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Icon(Icons.add,
+                        Icon(MaterialCommunityIcons.plus,
                             color: Theme.of(context).colorScheme.onBackground),
                         const SizedBox(width: 10),
                         Text(
@@ -130,26 +128,38 @@ class _SharedExpenseScreenState extends State<SharedExpenseScreen> {
                   ),
                 ),
                 Expanded(
-                  child: ListView.builder(
-                    itemCount: sharedExpenses.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TransScreen(
-                                isShared: true,
-                              ),
-                            ),
-                          );
-                        },
-                        key: ValueKey(sharedExpenses[index].id),
-                        title: Text(sharedExpenses[index].title),
-                      );
-                    },
-                  ),
-                ),
+                  child: sharedExpenses.isEmpty
+                      ? Center(
+                          child: Text(
+                            'No Shared Expenses!',
+                            style: TextStyle(
+                                color:
+                                    Theme.of(context).colorScheme.onBackground),
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: sharedExpenses.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              minVerticalPadding: 25.0,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => TransScreen(
+                                      isShared: true,
+                                      key: ValueKey(sharedExpenses[index].id),
+                                      sharedExpense: sharedExpenses[index],
+                                    ),
+                                  ),
+                                );
+                              },
+                              key: ValueKey(sharedExpenses[index].id),
+                              title: Text(sharedExpenses[index].title),
+                            );
+                          },
+                        ),
+                )
               ],
             ),
     );
