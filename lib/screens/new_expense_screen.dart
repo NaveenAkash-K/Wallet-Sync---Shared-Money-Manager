@@ -24,13 +24,33 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
   final _formKey = GlobalKey<FormState>();
   final firestore = FirebaseFirestore.instance;
   final uuid = const Uuid();
-
+  final firebaseAuth = FirebaseAuth.instance;
   String? enteredTitle;
   double? enteredAmount;
   ExpenseCategory? enteredCategory;
   DateTime? _selectedDate = DateTime.now();
   TimeOfDay? _selectedTime = TimeOfDay.now();
-  late String uid;
+  String? uid;
+
+  String? username;
+
+  void getUsername() async {
+    uid = firebaseAuth.currentUser!.uid;
+    final snapshot = await firestore.collection('users').doc(uid).get();
+    username = snapshot
+        .data()!
+        .entries
+        .firstWhere((element) => element.key == 'username')
+        .value;
+  }
+
+  @override
+  void initState() {
+    if (widget.isShared) {
+      getUsername();
+    }
+    super.initState();
+  }
 
   void _showDatePicker() async {
     HapticFeedback.lightImpact();
@@ -89,10 +109,17 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
           'amount': enteredAmount,
           'category': enteredCategory!.name,
           'date': formattedDate,
-          'time': formattedTime
+          'time': formattedTime,
+          'username': username,
+          'isShared': true,
         });
       } else {
-        firestore.collection("uid").doc(uid).collection("expense").doc(id).set({
+        firestore
+            .collection("users")
+            .doc(uid)
+            .collection("expense")
+            .doc(id)
+            .set({
           'id': id,
           'title': enteredTitle,
           'amount': enteredAmount,
@@ -108,14 +135,25 @@ class _NewExpenseScreenState extends State<NewExpenseScreen> {
 
       Navigator.pop(
         context,
-        Expense(
-          id: id,
-          title: enteredTitle!,
-          amount: enteredAmount!,
-          category: enteredCategory!,
-          date: formattedDate,
-          time: formattedTime,
-        ),
+        widget.isShared
+            ? Expense(
+                id: id,
+                title: enteredTitle!,
+                amount: enteredAmount!,
+                category: enteredCategory!,
+                date: formattedDate,
+                time: formattedTime,
+                username: username,
+                isShared: true,
+              )
+            : Expense(
+                id: id,
+                title: enteredTitle!,
+                amount: enteredAmount!,
+                category: enteredCategory!,
+                date: formattedDate,
+                time: formattedTime,
+              ),
       );
     }
   }

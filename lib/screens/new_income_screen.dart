@@ -27,12 +27,32 @@ class _NewIncomeScreenState extends State<NewIncomeScreen> {
   String? enteredTitle;
   final uuid = const Uuid();
   double? enteredAmount;
+  final firebaseAuth = FirebaseAuth.instance;
 
   IncomeCategory? enteredCategory;
 
   DateTime? _selectedDate = DateTime.now();
   TimeOfDay? _selectedTime = TimeOfDay.now();
   final firestore = FirebaseFirestore.instance;
+  String? username;
+
+  void getUsername() async {
+    final uid = firebaseAuth.currentUser!.uid;
+    final snapshot = await firestore.collection('users').doc(uid).get();
+    username = snapshot
+        .data()!
+        .entries
+        .firstWhere((element) => element.key == 'username')
+        .value;
+  }
+
+  @override
+  void initState() {
+    if (widget.isShared) {
+      getUsername();
+    }
+    super.initState();
+  }
 
   void _showDatePicker() async {
     final now = DateTime.now();
@@ -87,10 +107,17 @@ class _NewIncomeScreenState extends State<NewIncomeScreen> {
           'amount': enteredAmount,
           'category': enteredCategory!.name,
           'date': formattedDate,
-          'time': formattedTime
+          'time': formattedTime,
+          'username': username,
+          'isShared': true,
         });
       } else {
-        firestore.collection("uid").doc(uid).collection("income").doc(id).set({
+        firestore
+            .collection("users")
+            .doc(uid)
+            .collection("income")
+            .doc(id)
+            .set({
           'id': id,
           'title': enteredTitle,
           'amount': enteredAmount,
@@ -106,14 +133,25 @@ class _NewIncomeScreenState extends State<NewIncomeScreen> {
 
       Navigator.pop(
         context,
-        Income(
-          id: id,
-          title: enteredTitle!,
-          amount: enteredAmount!,
-          category: enteredCategory!,
-          date: formattedDate,
-          time: formattedTime,
-        ),
+        widget.isShared
+            ? Income(
+                id: id,
+                title: enteredTitle!,
+                amount: enteredAmount!,
+                category: enteredCategory!,
+                date: formattedDate,
+                time: formattedTime,
+                username: username,
+                isShared: true,
+              )
+            : Income(
+                id: id,
+                title: enteredTitle!,
+                amount: enteredAmount!,
+                category: enteredCategory!,
+                date: formattedDate,
+                time: formattedTime,
+              ),
       );
     }
   }

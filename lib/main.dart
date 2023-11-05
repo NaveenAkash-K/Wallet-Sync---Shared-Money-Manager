@@ -22,12 +22,12 @@ class MyApp extends StatelessWidget {
   MyApp({super.key});
 
   final kDarkColorScheme = ColorScheme.fromSeed(
-    seedColor: const Color.fromARGB(255, 255, 33, 33),
+    seedColor: const Color.fromARGB(255, 33, 103, 255),
     brightness: Brightness.dark,
   );
 
   final kLightColorScheme = ColorScheme.fromSeed(
-    seedColor: const Color.fromARGB(255, 255, 33, 33),
+    seedColor: const Color.fromARGB(255, 33, 103, 255),
     brightness: Brightness.light,
   );
 

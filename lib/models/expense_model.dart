@@ -42,6 +42,8 @@ class Expense {
     required this.category,
     required this.date,
     required this.time,
+    this.isShared = false,
+    this.username,
   }) : icon = expenseCategoryIcon[category.name]!;
 
   // final String date;
@@ -49,7 +51,8 @@ class Expense {
   final String title;
   final String date;
   final String time;
-
+  final bool isShared;
+  final String? username;
   final double amount;
   final ExpenseCategory category;
   final String id;

@@ -15,11 +15,13 @@ class ExpenseList extends StatelessWidget {
     required this.registeredIncome,
     required this.removeExpense,
     required this.removeIncome,
+    this.isShared = false,
   });
 
   List<dynamic> transactions;
   List<Expense> registeredExpense;
   List<Income> registeredIncome;
+  final bool isShared;
   final void Function(Expense item) removeExpense;
   final void Function(Income item) removeIncome;
 
@@ -85,7 +87,6 @@ class ExpenseList extends StatelessWidget {
             ),
           ),
           confirmDismiss: (DismissDirection direction) async {
-            // loadItem();
             return await showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -136,10 +137,16 @@ class ExpenseList extends StatelessWidget {
           },
           child: Column(
             children: [
-              ExpenseItem(
-                transactions: transactions,
-                index: index,
-              ),
+              isShared
+                  ? ExpenseItem(
+                      transactions: transactions,
+                      index: index,
+                      isShared: true,
+                    )
+                  : ExpenseItem(
+                      transactions: transactions,
+                      index: index,
+                    ),
               if (index == transactions.length - 1) const SizedBox(height: 50),
             ],
           ),

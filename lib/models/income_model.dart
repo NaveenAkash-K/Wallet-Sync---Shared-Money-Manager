@@ -22,15 +22,19 @@ class Income {
     required this.category,
     required this.date,
     required this.time,
+    this.isShared = false,
+    this.username,
   }) : icon = incomeCategoryIcon[category.name]!;
 
   // final String date;
 
   final String title;
+  final String? username;
   final String date;
   final String time;
   final double amount;
   final IncomeCategory category;
+  final bool isShared;
   final String id;
   final IconData icon;
 }

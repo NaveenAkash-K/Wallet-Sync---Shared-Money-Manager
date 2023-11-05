@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:walletSync/models/invitation_model.dart';
+import 'package:walletSync/widgets/invitation_item.dart';
 
 class InvitationsScreen extends StatefulWidget {
   const InvitationsScreen({super.key});
@@ -16,7 +17,17 @@ class _InvitationsScreenState extends State {
   String? email;
   bool isFetching = false;
 
-  void getEmail() async {
+  void removeInvitation(id) {
+    firestore.collection('invitations').doc(id).update({
+      'recipientEmail': FieldValue.arrayRemove([email])
+    });
+
+    setState(() {
+      invitationsList.removeWhere((element) => element.invitationId == id);
+    });
+  }
+
+  Future<String> getEmail() async {
     setState(() {
       isFetching = true;
     });
@@ -27,13 +38,25 @@ class _InvitationsScreenState extends State {
         .entries
         .firstWhere((element) => element.key == 'email')
         .value);
+    return email!;
   }
 
   void getInvitations() async {
+    email = await getEmail();
     final snapshot = await firestore
         .collection('invitations')
-        .where('recipientEmail', isEqualTo: email)
+        .where(
+          'recipientEmail',
+          arrayContains: email,
+        )
         .get();
+
+    // print(snapshot);
+    // snapshot.docs.asMap().entries.any((element) {
+    //   print(element.value.data());
+    //   print(email);
+    //   return true;
+    // });
 
     setState(() {
       isFetching = false;
@@ -54,6 +77,7 @@ class _InvitationsScreenState extends State {
 
         setState(() {
           invitationsList.add(Invitation(
+            invitationId: invitations.id,
             sharedExpenseId: sharedExpenseId!,
             senderUid: senderUid!,
             senderUsername: senderUsername!,
@@ -64,11 +88,8 @@ class _InvitationsScreenState extends State {
     }
   }
 
-  void acceptInvitation() {}
-
   @override
   void initState() {
-    getEmail();
     getInvitations();
     super.initState();
   }
@@ -83,7 +104,7 @@ class _InvitationsScreenState extends State {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           isFetching
-              ? Center(
+              ? const Center(
                   child: CircularProgressIndicator(),
                 )
               : invitationsList.isEmpty
@@ -97,9 +118,10 @@ class _InvitationsScreenState extends State {
                   : Expanded(
                       child: ListView.builder(
                         itemCount: invitationsList.length,
-                        itemBuilder: (context, index) => ListTile(
-                          title:
-                              Text(invitationsList[index].sharedExpenseTitle),
+                        itemBuilder: (context, index) => InvitationItem(
+                          removeInvitation: removeInvitation,
+                          key: ValueKey(invitationsList[index].invitationId),
+                          invitationDetails: invitationsList[index],
                         ),
                       ),
                     )

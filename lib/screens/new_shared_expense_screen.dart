@@ -130,7 +130,7 @@ class _NewSharedExpenseScreenState extends State {
                 ),
                 borderRadius: BorderRadius.circular(10),
               ),
-              margin: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+              margin: const EdgeInsets.fromLTRB(0, 30, 0, 10),
               padding: const EdgeInsets.all(10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,10 +161,18 @@ class _NewSharedExpenseScreenState extends State {
                                 margin:
                                     const EdgeInsets.fromLTRB(0, 10, 10, 10),
                                 decoration: BoxDecoration(
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer,
                                     borderRadius: BorderRadius.circular(10)),
-                                child: Center(child: Text(membersEmail[index])),
+                                child: Center(
+                                    child: Text(
+                                  membersEmail[index],
+                                  style: TextStyle(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer),
+                                )),
                               );
                             },
                           ),
@@ -174,11 +182,14 @@ class _NewSharedExpenseScreenState extends State {
             ),
             Row(
               children: [
+                Spacer(),
                 TextButton(
                   onPressed: addMember,
                   child: const Text("Add Member"),
                 ),
-                const Spacer(),
+                const SizedBox(
+                  width: 20,
+                ),
                 ElevatedButton(
                   onPressed: membersEmail.isEmpty ? null : createSharedExpense,
                   style: ElevatedButton.styleFrom(

@@ -6,7 +6,6 @@ import 'package:walletSync/screens/new_shared_expense_screen.dart';
 import 'package:walletSync/screens/trans_screen.dart';
 import 'package:walletSync/widgets/side_drawer.dart';
 import 'package:icons_flutter/icons_flutter.dart';
-import 'package:uuid/uuid.dart';
 
 class SharedExpenseScreen extends StatefulWidget {
   const SharedExpenseScreen({super.key});
@@ -42,7 +41,10 @@ class _SharedExpenseScreenState extends State<SharedExpenseScreen> {
 
     if (userSnapshot.docs.isNotEmpty) {
       for (final item in userSnapshot.docs.asMap().entries) {
-        final sharedExpenseIds = item.value['sharedExpense'];
+        List sharedExpenseIds = [];
+        if (item.value.data().containsKey('sharedExpense')) {
+          sharedExpenseIds = item.value['sharedExpense'];
+        }
         if (sharedExpenseIds.isNotEmpty) {
           for (final id in sharedExpenseIds) {
             final sharedExpenseSnapshot =

@@ -15,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:walletSync/widgets/side_drawer.dart';
 import 'package:icons_flutter/icons_flutter.dart';
 
+// ignore: must_be_immutable
 class TransScreen extends StatefulWidget {
   TransScreen({
     super.key,
@@ -56,7 +57,7 @@ class _TransScreen extends State<TransScreen> {
       });
     } else {
       firestore
-          .collection("uid")
+          .collection("users")
           .doc(uid)
           .collection("expense")
           .doc(item.id)
@@ -78,7 +79,7 @@ class _TransScreen extends State<TransScreen> {
           .delete();
     } else {
       firestore
-          .collection("uid")
+          .collection("users")
           .doc(uid)
           .collection("income")
           .doc(item.id)
@@ -134,11 +135,14 @@ class _TransScreen extends State<TransScreen> {
           .collection("expense")
           .get();
     } else {
-      incomeSnapShot =
-          await firestore.collection("uid").doc(uid).collection("income").get();
+      incomeSnapShot = await firestore
+          .collection("users")
+          .doc(uid)
+          .collection("income")
+          .get();
 
       expenseSnapShot = await firestore
-          .collection("uid")
+          .collection("users")
           .doc(uid)
           .collection("expense")
           .get();
@@ -165,41 +169,85 @@ class _TransScreen extends State<TransScreen> {
     late ExpenseCategory eCategory;
     late IncomeCategory iCategory;
 
-    if (expenseData != null) {
-      for (final item in expenseData.entries) {
-        eCategory = ExpenseCategory.values.firstWhere((element) {
-          return element.toString().split('.').last == item.value['category'];
-        });
+    if (widget.isShared) {
+      if (expenseData != null) {
+        for (final item in expenseData.entries) {
+          eCategory = ExpenseCategory.values.firstWhere((element) {
+            return element.toString().split('.').last == item.value['category'];
+          });
 
-        expenseLoadedItem.add(
-          Expense(
-            id: item.value['id'],
-            title: item.value['title'],
-            amount: item.value['amount'],
-            category: eCategory,
-            date: item.value['date'],
-            time: item.value['time'],
-          ),
-        );
+          expenseLoadedItem.add(
+            Expense(
+              id: item.value['id'],
+              title: item.value['title'],
+              amount: item.value['amount'],
+              category: eCategory,
+              date: item.value['date'],
+              time: item.value['time'],
+              isShared: item.value['isShared'],
+              username: item.value['username'],
+            ),
+          );
+        }
       }
-    }
 
-    if (incomeData != null) {
-      for (final item in incomeData.entries) {
-        iCategory = IncomeCategory.values.firstWhere((element) {
-          return element.toString().split('.').last == item.value['category'];
-        });
+      if (incomeData != null) {
+        for (final item in incomeData.entries) {
+          iCategory = IncomeCategory.values.firstWhere((element) {
+            return element.toString().split('.').last == item.value['category'];
+          });
 
-        incomeLoadedItem.add(
-          Income(
-            id: item.value['id'],
-            title: item.value['title'],
-            amount: item.value['amount'],
-            category: iCategory,
-            date: item.value['date'],
-            time: item.value['time'],
-          ),
-        );
+          incomeLoadedItem.add(
+            Income(
+              id: item.value['id'],
+              title: item.value['title'],
+              amount: item.value['amount'],
+              category: iCategory,
+              date: item.value['date'],
+              time: item.value['time'],
+              isShared: item.value['isShared'],
+              username: item.value['username'],
+            ),
+          );
+        }
+      }
+    } else {
+      if (expenseData != null) {
+        for (final item in expenseData.entries) {
+          eCategory = ExpenseCategory.values.firstWhere((element) {
+            return element.toString().split('.').last == item.value['category'];
+          });
+
+          expenseLoadedItem.add(
+            Expense(
+              id: item.value['id'],
+              title: item.value['title'],
+              amount: item.value['amount'],
+              category: eCategory,
+              date: item.value['date'],
+              time: item.value['time'],
+            ),
+          );
+        }
+      }
+
+      if (incomeData != null) {
+        for (final item in incomeData.entries) {
+          iCategory = IncomeCategory.values.firstWhere((element) {
+            return element.toString().split('.').last == item.value['category'];
+          });
+
+          incomeLoadedItem.add(
+            Income(
+              id: item.value['id'],
+              title: item.value['title'],
+              amount: item.value['amount'],
+              category: iCategory,
+              date: item.value['date'],
+              time: item.value['time'],
+            ),
+          );
+        }
       }
     }
 
@@ -246,13 +294,22 @@ class _TransScreen extends State<TransScreen> {
                 ),
                 const Divider(),
                 Expanded(
-                  child: ExpenseList(
-                    transactions: widget.transactions,
-                    registeredExpense: widget.registeredExpense,
-                    registeredIncome: widget.registeredIncome,
-                    removeExpense: removeExpense,
-                    removeIncome: removeIncome,
-                  ),
+                  child: widget.isShared
+                      ? ExpenseList(
+                          transactions: widget.transactions,
+                          registeredExpense: widget.registeredExpense,
+                          registeredIncome: widget.registeredIncome,
+                          removeExpense: removeExpense,
+                          removeIncome: removeIncome,
+                          isShared: true,
+                        )
+                      : ExpenseList(
+                          transactions: widget.transactions,
+                          registeredExpense: widget.registeredExpense,
+                          registeredIncome: widget.registeredIncome,
+                          removeExpense: removeExpense,
+                          removeIncome: removeIncome,
+                        ),
                 ),
               ],
             ),

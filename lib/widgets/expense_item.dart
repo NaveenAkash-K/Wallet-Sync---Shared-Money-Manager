@@ -6,8 +6,10 @@ class ExpenseItem extends StatelessWidget {
     super.key,
     required this.index,
     required this.transactions,
+    this.isShared = false,
   });
   final int index;
+  final bool isShared;
   final List<dynamic> transactions;
 
   @override
@@ -38,12 +40,23 @@ class ExpenseItem extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                transactions[index].title,
-                textAlign: TextAlign.start,
-                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.onBackground),
+              Row(
+                children: [
+                  Text(
+                    transactions[index].title,
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onBackground),
+                  ),
+                  const SizedBox(width: 10),
+                  if (isShared)
+                    Text(
+                      "(${transactions[index].username})",
+                      style: Theme.of(context).textTheme.labelSmall!.copyWith(
+                          color: Theme.of(context).colorScheme.secondary),
+                    )
+                ],
               ),
               Row(
                 children: [
