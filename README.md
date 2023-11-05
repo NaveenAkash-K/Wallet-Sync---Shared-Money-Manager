@@ -27,9 +27,16 @@ That's it! You're ready to experience seamless money management.
 <table width="100%">
   <tbody>
     <tr>
-      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot1.png"/></td>
-      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot2.png"/></td>
-       <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot3.png"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_1.jpg"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_7.jpg"/></td>
+       <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_6.jpg"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_5.jpg"/></td>
+    </tr>
+    <tr>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_8.jpg"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_3.jpg"/></td>
+       <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_9.jpg"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/a088061c0f5257e6ccb8905f6eeeafa1878aa962/screenshot/screenshot_10.jpg"/></td>
     </tr>
   </tbody>
 <table>
