@@ -27,8 +27,8 @@ That's it! You're ready to experience seamless money management.
 <table width="100%">
   <tbody>
     <tr>
-      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/main/screenshot/screenshot_1.jpg"/></td>
       <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/main/screenshot/screenshot_7.jpg"/></td>
+      <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/main/screenshot/screenshot_1.jpg"/></td>
        <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/main/screenshot/screenshot_6.jpg"/></td>
       <td width="1%"><img src="https://raw.githubusercontent.com/NaveenAkash-K/WalletSync-Shared_Money_Manager/main/screenshot/screenshot_5.jpg"/></td>
     </tr>
